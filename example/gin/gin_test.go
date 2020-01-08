@@ -21,12 +21,12 @@ func initGinTest() error {
 
 	// prepare test cases
 	ginTestCases = make(map[string]apitest.TestCase)
-	ginTestCases["TestGinIndex"] = apitest.NewTestCase("TestGinIndex", "GET", "/", "Bare minimum API server in go with gin router", "", nil)
-	ginTestCases["TestGinParam1"] = apitest.NewTestCase("TestGinParam", "GET", "/param/ginTest", `"key = ginTest"`+"\n", "", nil)
-	ginTestCases["TestGinParam2"] = apitest.NewTestCase("TestGinParam2", "GET", "/param/gin-gin-test", `"key = gin-gin-test"`+"\n", "", nil)
+	ginTestCases["TestGinIndex"] = apitest.NewTestCase("TestGinIndex", "GET", "/", "Bare minimum API server in go with gin router", apitest.MatchExact, "", nil)
+	ginTestCases["TestGinParam1"] = apitest.NewTestCase("TestGinParam", "GET", "/param/ginTest", `"key = ginTest"`+"\n", apitest.MatchExact, "", nil)
+	ginTestCases["TestGinParam2"] = apitest.NewTestCase("TestGinParam2", "GET", "/param/gin-gin-test", `"key = gin-gin-test"`+"\n", apitest.MatchExact, "", nil)
 
 	expected := `{"Age":16,"Name":"Mohan"}` + "\n"
-	ginTestCases["TestGinJSON"] = apitest.NewTestCase("TestGinJSON", "GET", "/getjson", expected, "", nil)
+	ginTestCases["TestGinJSON"] = apitest.NewTestCase("TestGinJSON", "GET", "/getjson", expected, apitest.MatchExact, "", nil)
 
 	// post payload
 	p := Person{}
@@ -37,7 +37,7 @@ func initGinTest() error {
 	if err != nil {
 		return fmt.Errorf("Failed marshling payload")
 	}
-	ginTestCases["TestGinPostJSON"] = apitest.NewTestCase("TestGinPostJSON", "POST", "/postjson", `"OK"`+"\n", "", bytes.NewBuffer(payload))
+	ginTestCases["TestGinPostJSON"] = apitest.NewTestCase("TestGinPostJSON", "POST", "/postjson", `"OK"`+"\n", apitest.MatchExact, "", bytes.NewBuffer(payload))
 
 	// initialize test engine
 	ginTest = apitest.NewAPITest(gints)
@@ -139,7 +139,7 @@ func BenchmarkGinPostJSON(b *testing.B) {
 	}
 
 	for n := 0; n < b.N; n++ {
-		ret := ginTest.DoTest(apitest.NewTestCase("TestGinPostJSON", "POST", "/postjson", `"OK"`+"\n", "", bytes.NewBuffer(payload)))
+		ret := ginTest.DoTest(apitest.NewTestCase("TestGinPostJSON", "POST", "/postjson", `"OK"`+"\n", apitest.MatchExact, "", bytes.NewBuffer(payload)))
 		if ret.Err != nil {
 			b.Fatal(ret.Err)
 		}

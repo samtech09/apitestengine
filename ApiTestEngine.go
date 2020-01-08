@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 )
 
 // TestCase allow to set URL calling parameters
@@ -14,6 +15,7 @@ type TestCase struct {
 	Method             string
 	URL                string
 	Expected           string
+	Match              MatchType
 	PostPutContentType string
 	PostPutPayload     io.Reader
 }
@@ -35,12 +37,13 @@ func NewAPITest(ts *httptest.Server) *APITest {
 }
 
 //NewTestCase creates and return new-test-case with given parameters
-func NewTestCase(id, method, url, expected, postPutContentType string, postPutPayload io.Reader) TestCase {
+func NewTestCase(id, method, url, expected string, match MatchType, postPutContentType string, postPutPayload io.Reader) TestCase {
 	t := TestCase{}
 	t.ID = id
 	t.Method = method
 	t.URL = url
 	t.Expected = expected
+	t.Match = match
 	t.PostPutPayload = postPutPayload
 	t.PostPutContentType = postPutContentType
 	return t
@@ -96,8 +99,23 @@ func (t *APITest) executeTest(tcase TestCase) error {
 	}
 
 	rsp := string(body)
-	if rsp != tcase.Expected {
-		return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant %v", rsp, tcase.Expected)
+	if tcase.Match == MatchContains {
+		if !strings.Contains(rsp, tcase.Expected) {
+			return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant [Contains] %v", rsp, tcase.Expected)
+		}
+	} else if tcase.Match == MatchStartsWith {
+		if !strings.HasPrefix(rsp, tcase.Expected) {
+			return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant [Start with] %v", rsp, tcase.Expected)
+		}
+	} else if tcase.Match == MatchEndsWith {
+		if !strings.HasSuffix(rsp, tcase.Expected) {
+			return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant [Ends with] %v", rsp, tcase.Expected)
+		}
+	} else {
+		// exact match
+		if rsp != tcase.Expected {
+			return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant [Exact] %v", rsp, tcase.Expected)
+		}
 	}
 	return nil
 }

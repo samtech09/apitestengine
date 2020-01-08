@@ -21,12 +21,15 @@ func initChiTest() error {
 
 	// prepare test cases
 	chiTestCases = make(map[string]apitest.TestCase)
-	chiTestCases["TestChiIndex"] = apitest.NewTestCase("TestChiIndex", "GET", "/", "Bare minimum API server in go with chi router", "", nil)
-	chiTestCases["TestChiParam1"] = apitest.NewTestCase("TestChiParam", "GET", "/param/chitest", `"key = chitest"`+"\n", "", nil)
-	chiTestCases["TestChiParam2"] = apitest.NewTestCase("TestChiParam2", "GET", "/param/chi-chi-test", `"key = chi-chi-test"`+"\n", "", nil)
+	chiTestCases["TestChiIndex"] = apitest.NewTestCase("TestChiIndex", "GET", "/", "Bare minimum API server in go with chi router", apitest.MatchExact, "", nil)
+	chiTestCases["TestChiParam1"] = apitest.NewTestCase("TestChiParam", "GET", "/param/chitest", `"key = chitest"`+"\n", apitest.MatchExact, "", nil)
+	//chiTestCases["TestChiParam2"] = apitest.NewTestCase("TestChiParam2", "GET", "/param/chi-chi-test", `"key = chi-chi-test"`+"\n", apitest.MatchContains, "", nil)
+	chiTestCases["TestChiParam2"] = apitest.NewTestCase("TestChiParam2", "GET", "/param/chi-chi-test", "key = chi-chi-test", apitest.MatchContains, "", nil)
 
-	expected := `{"Age":16,"Name":"Mohan"}` + "\n"
-	chiTestCases["TestChiJSON"] = apitest.NewTestCase("TestChiJSON", "GET", "/getjson", expected, "", nil)
+	//expected := `{"Age":16,"Name":"Mohan"}` + "\n"
+	//chiTestCases["TestChiJSON"] = apitest.NewTestCase("TestChiJSON", "GET", "/getjson", expected, "", nil)
+	expected := `{"Age":16,"Name":"Mohan"`
+	chiTestCases["TestChiJSON"] = apitest.NewTestCase("TestChiJSON", "GET", "/getjson", expected, apitest.MatchStartsWith, "", nil)
 
 	// post payload
 	p := Person{}
@@ -37,7 +40,7 @@ func initChiTest() error {
 	if err != nil {
 		return fmt.Errorf("Failed marshling payload")
 	}
-	chiTestCases["TestChiPostJSON"] = apitest.NewTestCase("TestChiPostJSON", "POST", "/postjson", `"OK"`+"\n", "", bytes.NewBuffer(payload))
+	chiTestCases["TestChiPostJSON"] = apitest.NewTestCase("TestChiPostJSON", "POST", "/postjson", `"OK"`+"\n", apitest.MatchExact, "", bytes.NewBuffer(payload))
 
 	// initialize test engine
 	chiTest = apitest.NewAPITest(chits)
@@ -139,7 +142,7 @@ func BenchmarkChiPostJSON(b *testing.B) {
 	}
 
 	for n := 0; n < b.N; n++ {
-		ret := chiTest.DoTest(apitest.NewTestCase("TestChiPostJSON", "POST", "/postjson", `"OK"`+"\n", "", bytes.NewBuffer(payload)))
+		ret := chiTest.DoTest(apitest.NewTestCase("TestChiPostJSON", "POST", "/postjson", `"OK"`+"\n", apitest.MatchExact, "", bytes.NewBuffer(payload)))
 		if ret.Err != nil {
 			b.Fatal(ret.Err)
 		}
