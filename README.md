@@ -55,3 +55,4 @@ func TestChiParam(t *testing.T) {
 }
 ```
 
+View [Examples](https://github.com/samtech09/apitestengine/tree/master/example) for more details.
