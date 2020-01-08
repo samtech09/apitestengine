@@ -31,7 +31,7 @@ chiTest = apitest.NewAPITest(s)
 ```
 // single case
 func TestChiIndex(t *testing.T) {
-	ret := chiTest.DoTest(apitest.NewTestCase("TestChiIndex", "GET", "/", "[string to match with response]", "", nil))
+	ret := chiTest.DoTest(apitest.NewTestCase("TestChiIndex", "GET", "/", "[string to match with response]", apitest.MatchTypeXXX, "", nil))
 	if ret.Err != nil {
 		t.Error(ret.Err)
 	}
@@ -40,8 +40,8 @@ func TestChiIndex(t *testing.T) {
 //multiple cases
 func TestChiParam(t *testing.T) {
 	tcs := []apitest.TestCase{}
-	tcs = append(tcs, apitest.NewTestCase("TestChiParam", "GET", "/param/1", "key = 1, "", nil))
-	tcs = append(tcs, apitest.NewTestCase("TestChiParam2", "GET", "/param/123", "key = 123", "", nil))
+	tcs = append(tcs, apitest.NewTestCase("TestChiParam", "GET", "/param/1", "key = 1, apitest.MatchExact, "", nil))
+	tcs = append(tcs, apitest.NewTestCase("TestChiParam2", "GET", "/param/123", "key = 123", apitest.MatchContains, "", nil))
 
 	tresult := chiTest.DoTests(tcs)
 	for _, ret := range tresult {
