@@ -7,6 +7,7 @@ const (
 	MatchStartsWith
 	MatchEndsWith
 	MatchContains
+	MatchNotContains
 )
 
 // type IMatchType interface {

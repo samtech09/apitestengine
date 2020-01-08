@@ -111,6 +111,10 @@ func (t *APITest) executeTest(tcase TestCase) error {
 		if !strings.HasSuffix(rsp, tcase.Expected) {
 			return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant [Ends with] %v", rsp, tcase.Expected)
 		}
+	} else if tcase.Match == MatchNotContains {
+		if strings.Contains(rsp, tcase.Expected) {
+			return fmt.Errorf("handler returned unexpected response: \n\tgot  %v \n\twant [not Contains] %v", rsp, tcase.Expected)
+		}
 	} else {
 		// exact match
 		if rsp != tcase.Expected {
